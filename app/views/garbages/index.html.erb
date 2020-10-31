@@ -44,6 +44,17 @@
 <%= render 'form_modal', garbage: @garbage %>
 
 <script>
+    let longitude;
+    let latitude;
+    function set_position(position) {
+        longitude = position.coords.longitude;
+        latitude = position.coords.latitude;
+    }
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(set_position, function () {
+            alert('Please allow location to continue');
+        });
+    }
     let map, infoWindow;
     let country_location = { lng: 21.7453, lat: 41.6086 };
     let garbages;
@@ -177,19 +188,18 @@
         controlUI.appendChild(controlText);
         // Setup the click event listeners: simply set the map to Chicago.
         controlUI.addEventListener("click", () => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function () {
-                    if(logged_in){
-                        $("#garbage_form_modal").modal('show');
-                    }
-                    else {
-                        $("#login_form_modal").modal('show');
-                    }
-                }, function () {
-                    alert('Please allow location to continue');
-                });
-            }
+            showPosition(longitude, latitude);
         });
+    }
+    function showPosition() {
+        if(logged_in){
+            $("#garbage_form_modal").modal('show');
+            $("#garbage_location_attributes_latitude").val(latitude);
+            $("#garbage_location_attributes_longitude").val(longitude);
+        }
+        else {
+            $("#login_form_modal").modal('show');
+        }
     }
 
 </script>
