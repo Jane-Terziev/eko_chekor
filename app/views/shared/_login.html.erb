@@ -6,15 +6,15 @@
 <div class="modal fade" id="form" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
-      <form class="text-center border border-light p-5" action="#!">
+      <form class="text-center border border-light p-5" action="<%= user_session_path %>" method="post">
 
         <p class="h4 mb-5">Најава</p>
 
         <!-- Email -->
-        <input type="email" id="defaultLoginFormEmail" class="form-control mb-4" placeholder="Емаил Адреса">
+        <input type="email" id="user_email" class="form-control mb-4" placeholder="Емаил Адреса" name="user[email]">
 
         <!-- Password -->
-        <input type="password" id="defaultLoginFormPassword" class="form-control mb-4" placeholder="Лозинка">
+        <input type="password" id="user_password" class="form-control mb-4" placeholder="Лозинка" name="user[password]">
 
         <!-- Sign in button -->
         <button class="btn btn-success btn-block my-4 mt-5" type="submit">Најави се</button>

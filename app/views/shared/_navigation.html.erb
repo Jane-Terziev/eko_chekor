@@ -21,6 +21,7 @@
       <li>
         <% unless current_user %>
           <%= render partial: "shared/login" %>
+          <%= render partial: "shared/registration" %>
         <% else %>
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -29,7 +30,7 @@
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" href="#">Profile</a>
             <div class="dropdown-divider"></div>
-            <%= link_to "Logout", users_sessions_path, class: 'dropdown-item', method: :delete %>
+            <%= link_to "Logout", destroy_user_session_path, class: 'dropdown-item', method: :delete %>
           </div>
         </li>
       <% end %>
