@@ -8,7 +8,7 @@ class Users::SessionsController < Devise::SessionsController
       redirect_to session[:return_to]
       session[:return_to] = nil
     else
-      respond_with resource, :location => after_sign_in_path_for(resource)
+      redirect_back(fallback_location: root_path)
     end
   end
 end

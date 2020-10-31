@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white">
   <a class="navbar-brand" href="/">
-    <%= image_tag "logo.jpg", style: 'height:100%;width:100%' %>
+    <%= image_tag "logo.png", style: 'height:100%;width:100%' %>
   </a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -9,11 +9,11 @@
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">
-        <a class="nav-link" href="#"> Мапа со Отпад
+        <a class="nav-link" href="<%= garbages_path %>"> Мапа со Отпад
         </a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#"> Резултати
+        <a class="nav-link" href="<%= users_results_path %>"> Резултати
         </a>
       </li>
     </ul>
@@ -28,7 +28,6 @@
             <%= current_user[:name] %>
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="#">Profile</a>
             <div class="dropdown-divider"></div>
             <%= link_to "Logout", destroy_user_session_path, class: 'dropdown-item', method: :delete %>
           </div>

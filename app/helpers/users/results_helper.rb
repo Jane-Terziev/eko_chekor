@@ -1,0 +1,2 @@
+module Users::ResultsHelper
+end
