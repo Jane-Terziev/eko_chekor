@@ -111,7 +111,7 @@
                     markers.push(marker);
                     google.maps.event.addListener(marker, 'click', (function (marker, i) {
                         return function(){
-                        var infoWindow = new google.maps.InfoWindow();
+                        var infoWindow = new google.maps.InfoWindow({ maxWidth: 200, maxHeight: 200 });
                         let markerContent = '';
                         let single_garbage = garbages[i];
                         markerContent += generateInfoContent(single_garbage);
@@ -151,7 +151,7 @@
     function generateInfoContent(single_garbage) {
         let content = '<div class="card">';
         if(single_garbage['image']['url'] != null){
-            content += '<img class="card-img-top" src="' + single_garbage['image']['url'] + '"/>';
+            content += '<img class="card-img-top img-fluid" src="' + single_garbage['image']['url'] + '"/>';
         }
         content += '<div class="card-body">'
         if(single_garbage['description'] != null) {
@@ -161,6 +161,7 @@
         if(single_garbage['status'] == 'not_cleaned'){
             content += '<a href="#" class="btn btn-success btn-block">Исчисти</a>'
         }
+        content += '</div></div>'
         return content;
     }
 
@@ -201,7 +202,5 @@
             $("#login_form_modal").modal('show');
         }
     }
-
 </script>
 <%= javascript_include_tag "//maps.google.com/maps/api/js?key=#{ENV.fetch('GOOGLE_MAPS_API_KEY')}&callback=initMap&region=MK" %>
-
