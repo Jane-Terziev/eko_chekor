@@ -1,7 +1,8 @@
 class Garbage < ApplicationRecord
   mount_uploader :image, GarbageUploader
-  enum status: { not_cleaned: 0, cleaned: 1, reviewed:2}
-  has_one :location, as: :locationable
+  STATUSES = { not_cleaned: 0, cleaned: 1, reviewed:2 }
+  enum status: { not_cleaned: 0, cleaned: 1, reviewed:2 }
+  has_one :location, as: :locationable, dependent: :destroy
   belongs_to :user
   accepts_nested_attributes_for :location
 

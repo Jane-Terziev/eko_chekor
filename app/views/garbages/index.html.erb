@@ -47,6 +47,11 @@
     let map, infoWindow;
     let country_location = { lng: 21.7453, lat: 41.6086 };
     let garbages;
+    var icons = {
+        "not_cleaned": '<%= image_path('Pins.svg')  %>',
+        "cleaned": '<%= image_path('Pins.svg') %>',
+        "reviewed": '<%= image_path('Pins.svg') %>'
+    }
     function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
             center: country_location,
@@ -66,10 +71,18 @@
             dataType: "json",
             success: function (response) {
                 garbages = response;
+                var marker_image;
                 for(var i = 0; i < garbages.length; i++){
+                    marker_image = {
+                        url: icons[garbages[i]['status']],
+                        size: new google.maps.Size(20, 32),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(0, 32),
+                    };
                     var marker = new google.maps.Marker({
                         position: {lng: parseFloat(garbages[i]['location']['longitude']), lat: parseFloat(garbages[i]['location']['latitude'])},
                         map,
+                        icon: marker_image
                     });
                     google.maps.event.addListener(marker, 'click', (function (marker, i) {
                         return function(){
