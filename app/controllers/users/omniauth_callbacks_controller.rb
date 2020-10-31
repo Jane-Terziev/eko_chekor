@@ -3,6 +3,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     @user = User.from_omniauth(request.env["omniauth.auth"])
 
     if @user.persisted?
+      sign_in(@user)
       redirect_back(fallback_location: root_path)
     else
       session["devise.facebook_data"] = request.env["omniauth.auth"]

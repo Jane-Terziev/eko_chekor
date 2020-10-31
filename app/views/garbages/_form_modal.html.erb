@@ -1,0 +1,22 @@
+<div class="modal fade" id="garbage_form_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <%= render 'form', garbage: @garbage %>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $("#garbage_form_modal").on('show.bs.modal', function () {
+        if (navigator.geolocation) {
+            console.log("TEST");
+            navigator.geolocation.getCurrentPosition(showPosition);
+        }
+    });
+    function showPosition(position) {
+        $("#garbage_location_attributes_latitude").val(position.coords.latitude);
+        $("#garbage_location_attributes_longitude").val(position.coords.longitude);
+    }
+</script>
