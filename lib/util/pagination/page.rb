@@ -52,7 +52,7 @@ module Pagination
       page_number - 1 unless first?
     end
 
-    def as_json(options = {})
+    def `as_json(options = {})
       {
           num_pages: total_pages,
           current_page: page_number,

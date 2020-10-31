@@ -15,7 +15,7 @@
             <input type="checkbox" class="custom-control-input" id="by_me">
             <label class="custom-control-label" for="by_me">Отпад пријавен од мене</label>
           </div>
-          <% end %>
+        <% end %>
         <div class="custom-control custom-checkbox mb-4">
           <input type="checkbox" class="custom-control-input" id="not_cleaned">
           <label class="custom-control-label" for="not_cleaned">Oтпад за чистење</label>
@@ -45,6 +45,7 @@
 <script>
     let map, infoWindow;
     let country_location = { lng: 21.7453, lat: 41.6086 };
+    let garbages;
     function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
             center: country_location,
@@ -53,6 +54,36 @@
             maxZoom: 20,
             minZoom: 8
         });
+        $.ajax({
+            url: '<%= garbages_path %>',
+            method: 'GET',
+            async: false,
+            contentType: "application/json",
+            dataType: "json",
+            success: function (response) {
+                garbages = response;
+                for(var i = 0; i < garbages.length; i++){
+                    var marker = new google.maps.Marker({
+                        position: {lng: parseFloat(garbages[i]['location']['longitude']), lat: parseFloat(garbages[i]['location']['latitude'])},
+                        map,
+                    });
+                    google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                        return function(){
+                        var infoWindow = new google.maps.InfoWindow();
+                        let markerContent = '';
+                        if(garbages[i]['image']['url'] != null){
+                            markerContent += '<img src="' + garbages[i]['image']['url'] + '">';
+                        }
+                        markerContent += '<p>Дполонителен Опис: ' + garbages[i]['description'] + '</p>'
+                        infoWindow.setContent(markerContent);
+                        infoWindow.open(marker, this);
+                        }
+                    })(marker, i));
+                }
+            }
+        });
     }
+
 </script>
 <%= javascript_include_tag "//maps.google.com/maps/api/js?key=#{ENV.fetch('GOOGLE_MAPS_API_KEY')}&callback=initMap&region=MK" %>
+
