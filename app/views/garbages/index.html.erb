@@ -114,7 +114,12 @@
         controlUI.addEventListener("click", () => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function () {
-                    $("#garbage_form_modal").modal('show');
+                    if(logged_in){
+                        $("#garbage_form_modal").modal('show');
+                    }
+                    else {
+                        $("#login_form_modal").modal('show');
+                    }
                 }, function () {
                     alert('Please allow location to continue');
                 });

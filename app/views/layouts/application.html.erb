@@ -37,6 +37,7 @@
   <!-- MDB core JavaScript -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>
   <script type="text/javascript">
+    var logged_in = <%= current_user.present? %>;
       if (window.location.hash === "#_=_"){
           history.replaceState
               ? history.replaceState(null, null, window.location.href.split("#")[0])
