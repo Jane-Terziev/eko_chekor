@@ -23,7 +23,9 @@
   <body>
   <div class="container-fluid d-flex flex-column min-vh-100">
   <%= render partial: "shared/navigation" %>
-    <%= yield %>
+    <div class="mt-5 mb-5">
+      <%= yield %>
+    </div>
 
     <%= render partial: "shared/footer" %>
   </div>

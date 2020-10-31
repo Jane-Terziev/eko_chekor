@@ -25,10 +25,10 @@ class GarbagesController < ApplicationController
 
   # POST /garbages
   def create
-    @garbage = Garbage.new(garbage_params)
+    @garbage = Garbage.new(garbage_params.merge(user_id: current_user.id))
 
     if @garbage.save
-      redirect_to @garbage, notice: 'Garbage was successfully created.'
+      redirect_back(fallback_location: map_path)
     else
       render :new
     end
@@ -37,7 +37,7 @@ class GarbagesController < ApplicationController
   # PATCH/PUT /garbages/1
   def update
     if @garbage.update(garbage_params)
-      redirect_to @garbage, notice: 'Garbage was successfully updated.'
+      redirect_to @garbage
     else
       render :edit
     end
@@ -46,10 +46,11 @@ class GarbagesController < ApplicationController
   # DELETE /garbages/1
   def destroy
     @garbage.destroy
-    redirect_to garbages_url, notice: 'Garbage was successfully destroyed.'
+    redirect_to garbages_url
   end
 
   def map
+    @garbage = Garbage.new
     render :index
   end
 
@@ -61,6 +62,6 @@ class GarbagesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def garbage_params
-      params.fetch(:garbage, {})
+      params.require(:garbage).permit(:description, :image, :status, :points, location_attributes: [:longitude, :latitude])
     end
 end

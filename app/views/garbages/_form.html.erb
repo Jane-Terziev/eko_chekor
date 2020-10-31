@@ -1,23 +1,49 @@
-<%= form_with(model: garbage, local: true, url: garbages_path) do |f| %>
-  <div class="field">
-    <%= f.label :description %><br />
-    <%= f.text_field :description %>
+<div class="card">
+  <div class="card-header">
+    <div class="card-title  text-center">
+      Пријави Отпад
+    </div>
   </div>
+  <div class="card-body">
+    <%= form_with(model: garbage, local: true, id: 'garbage_form') do |f| %>
+      <% if garbage.errors.any? %>
+        <div id="error_explanation">
+          <h2><%= pluralize(garbage.errors.count, "error") %> prohibited this test from being saved:</h2>
 
-  <div class="field">
-    <%= f.label :image %><br />
-    <%= f.file_field :image %>
-  </div>
+          <ul>
+            <% garbage.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
 
-  <div class="field">
-    <%= f.label :points %><br />
-    <%= f.number_field :points, step: :any %>
+      <div>
+        <%= f.label :image, 'Прикачи Слика'%><br />
+        <%= f.file_field :image, :class=> 'form-control mb-4' %>
+      </div>
+
+      <div>
+        <%= f.label :description, 'Дополнителен опис'%><br />
+        <%= f.text_area :description, :class=> 'form-control mb-4' %>
+      </div>
+
+      <%= f.fields_for :location_attributes do |l| %>
+        <div>
+          <%= l.hidden_field(:longitude) %>
+        </div>
+
+        <div>
+          <%= l.hidden_field(:latitude) %>
+        </div>
+      <% end %>
+
+      <div class="text-center">
+        <%= f.submit 'Пријави', :class => 'btn btn-success' %>
+        <button class="btn btn-danger" data-dismiss="modal">
+          Откажи
+        </button>
+      </div>
+    <% end %>
   </div>
-  <div class="field">
-    <%= f.label :status %><br />
-    <%= f.number_field :status %>
-  </div>
-  <div class="actions">
-    <%= f.submit %>
-  </div>
-<% end %>
+</div>

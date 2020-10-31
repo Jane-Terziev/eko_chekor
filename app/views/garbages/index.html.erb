@@ -1,4 +1,4 @@
-<div class="row mt-5">
+<div class="row">
   <div class="col-lg-8 col-md-12 col-12">
     <div id="map" style="display: flex; height: 75vh"></div>
   </div>
@@ -41,6 +41,7 @@
     </div>
   </div>
 </div>
+<%= render 'form_modal', garbage: @garbage %>
 
 <script>
     let map, infoWindow;
@@ -54,6 +55,9 @@
             maxZoom: 20,
             minZoom: 8
         });
+        const centerControlDiv = document.createElement("div");
+        ReportGarbageControl(centerControlDiv, map);
+        map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(centerControlDiv);
         $.ajax({
             url: '<%= garbages_path %>',
             method: 'GET',
@@ -81,6 +85,34 @@
                     })(marker, i));
                 }
             }
+        });
+    }
+
+    function ReportGarbageControl(controlDiv, map) {
+        // Set CSS for the control border.
+        const controlUI = document.createElement("div");
+        controlUI.style.backgroundColor = "#fff";
+        controlUI.style.border = "2px solid #fff";
+        controlUI.style.borderRadius = "3px";
+        controlUI.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
+        controlUI.style.cursor = "pointer";
+        controlUI.style.marginBottom = "22px";
+        controlUI.style.textAlign = "center";
+        controlUI.title = "Click to recenter the map";
+        controlDiv.appendChild(controlUI);
+        // Set CSS for the control interior.
+        const controlText = document.createElement("div");
+        controlText.style.color = "rgb(25,25,25)";
+        controlText.style.fontFamily = "Roboto,Arial,sans-serif";
+        controlText.style.fontSize = "16px";
+        controlText.style.lineHeight = "38px";
+        controlText.style.paddingLeft = "5px";
+        controlText.style.paddingRight = "5px";
+        controlText.innerHTML = "Пријави Отпад";
+        controlUI.appendChild(controlText);
+        // Setup the click event listeners: simply set the map to Chicago.
+        controlUI.addEventListener("click", () => {
+            $("#garbage_form_modal").modal('show');
         });
     }
 
