@@ -38,12 +38,11 @@
             url: form.attr('action'),
             method: 'POST',
             data: form.serialize(),
-            succes: function () {
+            success: function () {
                 location.reload(true);
             },
             error: function (response) {
                 let error_array = response.responseJSON['message'];
-                console.log(error_array)
                 for(var i = 0; i < error_array.length; i++){
                     $('#error_registration').append(error_array[i][0] + '<br>');
                 }
