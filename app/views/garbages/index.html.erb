@@ -112,7 +112,13 @@
         controlUI.appendChild(controlText);
         // Setup the click event listeners: simply set the map to Chicago.
         controlUI.addEventListener("click", () => {
-            $("#garbage_form_modal").modal('show');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function () {
+                    $("#garbage_form_modal").modal('show');
+                }, function () {
+                    alert('Please allow location to continue');
+                });
+            }
         });
     }
 

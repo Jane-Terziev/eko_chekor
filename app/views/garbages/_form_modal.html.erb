@@ -11,8 +11,9 @@
 <script>
     $("#garbage_form_modal").on('show.bs.modal', function () {
         if (navigator.geolocation) {
-            console.log("TEST");
-            navigator.geolocation.getCurrentPosition(showPosition);
+            navigator.geolocation.getCurrentPosition(showPosition, function () {
+                alert('Please allow location to continue');
+            });
         }
     });
     function showPosition(position) {
