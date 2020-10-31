@@ -5,6 +5,10 @@ class User < ApplicationRecord
   validates_presence_of :password,if: :is_not_from_host?, message: 'Лозинката не може да биде празна'
   validates_presence_of :name, if: :is_not_from_host?, message: 'Името и Презимето не мозат да бидат празни'
 
+
+  def exists_with_email?
+    User.exists?(email: email)
+  end
   def self.new_with_session(params, session)
     super.tap do |user|
       if data = session["devise.facebook_data"] && session["devise.facebook_data"]["extra"]["raw_info"]
