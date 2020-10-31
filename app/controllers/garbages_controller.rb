@@ -25,7 +25,7 @@ class GarbagesController < ApplicationController
 
   # POST /garbages
   def create
-    @garbage = Garbage.new(garbage_params.merge(user_id: current_user.id))
+    @garbage = Garbage.new(garbage_params.merge(user_id: current_user.id, status: Garbage::STATUSES[:not_cleaned]))
 
     if @garbage.save
       redirect_back(fallback_location: map_path)

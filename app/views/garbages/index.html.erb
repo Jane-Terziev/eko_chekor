@@ -47,6 +47,24 @@
     let map, infoWindow;
     let country_location = { lng: 21.7453, lat: 41.6086 };
     let garbages;
+    let markers = [];
+    var icons = {
+        "not_cleaned": {
+            "small": '<%= image_path('pin_red_small.svg')  %>',
+            "medium": '<%= image_path('pin_red_medium.svg') %>',
+            "large": '<%= image_path('pin_red_large.svg')  %>'
+        },
+        "cleaned": {
+            "small": '<%= image_path('pin_yellow_small.svg')  %>',
+            "medium": '<%= image_path('pin_yellow_medium.svg')  %>',
+            "large": '<%= image_path('pin_yellow_large.svg')  %>'
+        },
+        "reviewed": {
+            "small": '<%= image_path('pin_green_small.svg')  %>',
+            "medium": '<%= image_path('pin_green_medium.svg')  %>',
+            "large": '<%= image_path('pin_green_large.svg')  %>'
+        },
+    }
     function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
             center: country_location,
@@ -66,19 +84,26 @@
             dataType: "json",
             success: function (response) {
                 garbages = response;
+                var marker_image;
                 for(var i = 0; i < garbages.length; i++){
+                    marker_image = {
+                        url: icons[garbages[i]['status']]['small'],
+                        size: new google.maps.Size(85, 85),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(0, 32),
+                    };
                     var marker = new google.maps.Marker({
                         position: {lng: parseFloat(garbages[i]['location']['longitude']), lat: parseFloat(garbages[i]['location']['latitude'])},
                         map,
+                        icon: marker_image
                     });
+                    markers.push(marker);
                     google.maps.event.addListener(marker, 'click', (function (marker, i) {
                         return function(){
                         var infoWindow = new google.maps.InfoWindow();
                         let markerContent = '';
-                        if(garbages[i]['image']['url'] != null){
-                            markerContent += '<img src="' + garbages[i]['image']['url'] + '">';
-                        }
-                        markerContent += '<p>Дполонителен Опис: ' + garbages[i]['description'] + '</p>'
+                        let single_garbage = garbages[i];
+                        markerContent += generateInfoContent(single_garbage);
                         infoWindow.setContent(markerContent);
                         infoWindow.open(marker, this);
                         }
@@ -86,6 +111,46 @@
                 }
             }
         });
+
+        google.maps.event.addListener(map, 'zoom_changed', function() {
+            var marker_size_type;
+            var marker_size;
+            var zoom_level = map.getZoom();
+            if(zoom_level <= 12){
+                marker_size_type = 'small';
+                marker_size = 85;
+            }
+            else if(zoom_level >= 13 && zoom_level <= 18){
+                marker_size_type = 'medium';
+                marker_size = 150;
+            }
+            else{
+                marker_size_type = 'large';
+                marker_size = 200;
+            }
+            for(var i = 0; i < markers.length; i++)
+            {
+                markers[i].setIcon(icons[garbages[i]['status']][marker_size_type]);
+                markers[i].size = new google.maps.Size(marker_size, marker_size);
+                new google.maps.Marker(markers[i]);
+            }
+        });
+    }
+
+    function generateInfoContent(single_garbage) {
+        let content = '<div class="card">';
+        if(single_garbage['image']['url'] != null){
+            content += '<img class="card-img-top" src="' + single_garbage['image']['url'] + '"/>';
+        }
+        content += '<div class="card-body">'
+        if(single_garbage['description'] != null) {
+            content +=  '<p class="card-text">' + 'Опис: ' + single_garbage['description'] + '</p>'
+        }
+        content += '<p class="card-text">' + 'Пријавено од: ' + single_garbage['user']['name'] + '</p>';
+        if(single_garbage['status'] == 'not_cleaned'){
+            content += '<a href="#" class="btn btn-success btn-block">Исчисти</a>'
+        }
+        return content;
     }
 
     function ReportGarbageControl(controlDiv, map) {
