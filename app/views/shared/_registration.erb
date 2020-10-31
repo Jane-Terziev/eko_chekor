@@ -1,15 +1,16 @@
-<button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#registration_form">
+<button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#registration_form_modal">
   Регистрирај се
 </button>
 
 
-<div class="modal fade" id="registration_form" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="registration_form_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
-      <form class="text-center border border-light p-5" action="<%= user_registration_path %>" method="post">
+      <form class="text-center border border-light p-5" id='registration_form' action="<%= user_registration_path %>" method="post"
+            onsubmit="event.preventDefault(); request_registration();">
 
         <p class="h4 mb-5">Регистрација</p>
-
+        <div class="alert alert-danger" id="error_registration" style="display: none;"></div>
         <!-- Email -->
         <input type="email" id="user_registration_email" class="form-control mb-4" placeholder="Емаил Адреса" name="user[email]">
 
@@ -28,3 +29,29 @@
     </div>
   </div>
 </div>
+
+<script>
+    function request_registration() {
+        var form = $("#registration_form");
+        $('#error_registration').text('');
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            succes: function () {
+                location.reload(true);
+            },
+            error: function (response) {
+                let error_array = response.responseJSON['message'];
+                console.log(error_array)
+                for(var i = 0; i < error_array.length; i++){
+                    $('#error_registration').append(error_array[i][0] + '<br>');
+                }
+                $('#error_registration').css('display', 'block');
+            }
+        })
+    }
+    $("#registration_form_modal").on('show.bs.modal', function () {
+        $("#error_registration").css('display', 'none');
+    })
+</script>

@@ -1,9 +1,9 @@
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable, :omniauthable, :omniauth_providers => [:facebook]
 
-  validates :email, presence: true, if: :is_not_from_host?
-  validates :encrypted_password, presence: true, if: :is_not_from_host?
-  validates :name, presence: true, if: :is_not_from_host?
+  validates_presence_of :email, if: :is_not_from_host?, message: 'Емаилот не може да биде празен'
+  validates_presence_of :password,if: :is_not_from_host?, message: 'Лозинката не може да биде празна'
+  validates_presence_of :name, if: :is_not_from_host?, message: 'Името и Презимето не мозат да бидат празни'
 
   def self.new_with_session(params, session)
     super.tap do |user|
