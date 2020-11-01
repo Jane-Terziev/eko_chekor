@@ -8,6 +8,7 @@ end
 
 Dry::System::Rails.container do
   register('identity.current_user_repository', Identity::SecurityContext)
+  register(:web_client, HTTParty)
 
   register('util.contract_validator') { ContractValidator.new }
 

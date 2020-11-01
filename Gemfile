@@ -20,6 +20,8 @@ gem 'sidekiq', '~> 6.1.0'
 gem 'devise'
 gem 'omniauth-facebook'
 # Use Active Storage variant
+gem 'carrierwave', '~> 2.0'
+gem "fog-aws"
 # gem 'image_processing', '~> 1.2'
 gem 'dry-validation', '~> 1.3'
 
@@ -32,6 +34,8 @@ gem 'rails_event_store', '~> 0.42'
 gem 'kaminari'
 
 gem 'tod'
+
+gem 'httparty'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false

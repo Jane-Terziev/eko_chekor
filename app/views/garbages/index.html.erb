@@ -1,0 +1,262 @@
+<div class="row">
+  <div class="col-lg-8 col-md-12 col-12">
+    <div id="map" style="display: flex; height: 75vh"></div>
+  </div>
+  <div class="col-lg-4 col-md-12 col-12">
+    <div class="card" style="height: 100%">
+      <div class="card-header text-center">
+        <div class="card-title">
+          <strong>Пребарувај со филтри</strong>
+        </div>
+      </div>
+      <div class="card-body" id="filters">
+        <% if current_user %>
+          <div class="custom-control custom-checkbox mb-4">
+            <input type="checkbox" class="custom-control-input" id="reported_by_me">
+            <label class="custom-control-label" for="reported_by_me">Отпад пријавен од мене</label>
+          </div>
+          <div class="custom-control custom-checkbox mb-4">
+            <input type="checkbox" class="custom-control-input" id="cleaned_by_me">
+            <label class="custom-control-label" for="cleaned_by_me">Отпад исчистен од мене</label>
+          </div>
+          <div class="custom-control custom-checkbox mb-4">
+            <input type="checkbox" class="custom-control-input" id="reviewed_by_me">
+            <label class="custom-control-label" for="reviewed_by_me">Отпад проверен од мене</label>
+          </div>
+        <% end %>
+        <div class="custom-control custom-checkbox mb-4">
+          <input type="checkbox" class="custom-control-input" id="for_cleaning">
+          <label class="custom-control-label" for="for_cleaning">Oтпад за чистење</label>
+        </div>
+        <div class="custom-control custom-checkbox mb-4">
+          <input type="checkbox" class="custom-control-input" id="for_reviewing">
+          <label class="custom-control-label" for="for_reviewing">Отпад за проверка</label>
+        </div>
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" id="filter_finished">
+          <label class="custom-control-label" for="filter_finished">Исчистен отпад</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%= render 'form_modal', garbage: @garbage %>
+<%= render 'form_clean', garbage: @garbage %>
+
+<script>
+    let longitude;
+    let latitude;
+    let map, infoWindow;
+    let country_location = { lng: 21.7453, lat: 41.6086 };
+    let garbages = [];
+    let markers = [];
+    let filter_url = '<%= garbages_path %>';
+    var icons = {
+        "not_cleaned": {
+            "small": '<%= image_path('pin_red_small.svg')  %>',
+            "medium": '<%= image_path('pin_red_medium.svg') %>',
+            "large": '<%= image_path('pin_red_large.svg')  %>'
+        },
+        "cleaned": {
+            "small": '<%= image_path('pin_yellow_small.svg')  %>',
+            "medium": '<%= image_path('pin_yellow_medium.svg')  %>',
+            "large": '<%= image_path('pin_yellow_large.svg')  %>'
+        },
+        "reviewed": {
+            "small": '<%= image_path('pin_green_small.svg')  %>',
+            "medium": '<%= image_path('pin_green_medium.svg')  %>',
+            "large": '<%= image_path('pin_green_large.svg')  %>'
+        },
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(set_position, function () {
+            alert('Please allow location to continue');
+        });
+    }
+
+    $("#filters input[type=checkbox]").change(function () {
+        let filters = filter_url + '?';
+
+        $("#filters input[type=checkbox]").each(function () {
+            if(this.checked){
+                filters += 'filters[]' + $(this).attr('id') + '=true&';
+            }
+        });
+        filters = filters.slice(0, -1)
+        filter_garbages(map, filters);
+    });
+
+    function set_position(position) {
+        longitude = position.coords.longitude;
+        latitude = position.coords.latitude;
+    }
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: country_location,
+            zoom: 8,
+            disableDefaultUI: true,
+            maxZoom: 20,
+            minZoom: 8
+        });
+        const centerControlDiv = document.createElement("div");
+        ReportGarbageControl(centerControlDiv, map);
+        map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(centerControlDiv);
+
+        filter_garbages(map, filter_url);
+
+        google.maps.event.addListener(map, 'zoom_changed', function() {
+            var marker_size_type;
+            var marker_size;
+            var zoom_level = map.getZoom();
+            if(zoom_level <= 12){
+                marker_size_type = 'small';
+                marker_size = 85;
+            }
+            else if(zoom_level >= 13 && zoom_level <= 18){
+                marker_size_type = 'medium';
+                marker_size = 150;
+            }
+            else{
+                marker_size_type = 'large';
+                marker_size = 200;
+            }
+            for(var i = 0; i < markers.length; i++)
+            {
+                markers[i].setIcon(icons[garbages[i]['status']][marker_size_type]);
+                markers[i].size = new google.maps.Size(marker_size, marker_size);
+                new google.maps.Marker(markers[i]);
+            }
+        });
+    }
+
+    function filter_garbages(map, url) {
+        $.ajax({
+            url: url,
+            method: 'GET',
+            async: false,
+            contentType: "application/json",
+            dataType: "json",
+            success: function (response) {
+                garbages = response;
+                if(markers.length){
+                    for(var i = 0; i < markers.length; i++) {
+                        markers[i].setMap(null);
+                    }
+                }
+                markers = [];
+                var marker_image;
+                for(var i = 0; i < garbages.length; i++){
+                    marker_image = {
+                        url: icons[garbages[i]['status']]['small'],
+                        size: new google.maps.Size(85, 85),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(0, 32),
+                    };
+                    var marker = new google.maps.Marker({
+                        position: {lng: parseFloat(garbages[i]['location']['longitude']), lat: parseFloat(garbages[i]['location']['latitude'])},
+                        map,
+                        icon: marker_image
+                    });
+                    markers.push(marker);
+                    google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                        return function(){
+                            var infoWindow = new google.maps.InfoWindow({ maxWidth: 200, maxHeight: 200 });
+                            let markerContent = '';
+                            let single_garbage = garbages[i];
+                            markerContent += generateInfoContent(single_garbage);
+                            infoWindow.setContent(markerContent);
+                            infoWindow.open(marker, this);
+                        }
+                    })(marker, i));
+                }
+            }
+        });
+    }
+
+    function generateInfoContent(single_garbage) {
+        let content = '<div class="card">';
+        let id = single_garbage['id'];
+
+        if(single_garbage['status'] == 'not_cleaned'){
+            if(single_garbage['image']['url'] != null){
+                content += '<img class="card-img-top img-fluid" src="' + single_garbage['image']['url'] + '"/>';
+            }
+            content += '<div class="card-body">'
+            if(single_garbage['description'] != null) {
+                content +=  '<p class="card-text">' + 'Опис: ' + single_garbage['description'] + '</p>'
+            }
+            content += '<p class="card-text"><strong>Пријавено од: </strong>' + single_garbage['user']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Поени: </strong>' + single_garbage['points'] + '</p>';
+            content += '<button class="btn btn-success btn-block" onclick="open_clean_modal(' + id + ')">Исчисти</button>'
+        }
+        if(single_garbage['status'] == 'cleaned'){
+            if(single_garbage['image_cleaned']['url'] != null){
+                content += '<img class="card-img-top img-fluid" src="' + single_garbage['image_cleaned']['url'] + '"/>';
+            }
+            content += '<div class="card-body">'
+            content += '<p class="card-text"><strong>Пријавено од: </strong>' + single_garbage['user']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Исчистено од:</strong> ' + single_garbage['cleaner']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Поени: </strong>' + single_garbage['points'] + '</p>';
+            content += '<a href="/garbages/' + id + '/reviewed" class="btn btn-success btn-block">Потврди</a>'
+        }
+        if(single_garbage['status'] == 'reviewed') {
+            if(single_garbage['image_cleaned']['url'] != null){
+                content += '<img class="card-img-top img-fluid" src="' + single_garbage['image_cleaned']['url'] + '"/>';
+            }
+            content += '<div class="card-body">'
+            content += '<p class="card-text"><strong>Пријавено од: </strong>' + single_garbage['user']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Исчистено од:</strong> ' + single_garbage['cleaner']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Проверено од:</strong> ' + single_garbage['reviewer']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Поени: </strong>' + single_garbage['points'] + '</p>';
+        }
+        content += '</div></div>'
+        return content;
+    }
+
+    function open_clean_modal(id) {
+        $("#garbage_clean_form").attr('action', "/garbages/" + id + "/cleaned");
+        $("#garbage_clean_modal").modal('show');
+    }
+
+    function ReportGarbageControl(controlDiv, map) {
+        // Set CSS for the control border.
+        const controlUI = document.createElement("div");
+        controlUI.style.backgroundColor = "#fff";
+        controlUI.style.border = "2px solid #fff";
+        controlUI.style.borderRadius = "3px";
+        controlUI.style.boxShadow = "0 2px 6px rgba(0,0,0,.3)";
+        controlUI.style.cursor = "pointer";
+        controlUI.style.marginBottom = "22px";
+        controlUI.style.textAlign = "center";
+        controlUI.title = "Click to recenter the map";
+        controlDiv.appendChild(controlUI);
+        // Set CSS for the control interior.
+        const controlText = document.createElement("div");
+        controlText.style.color = "rgb(25,25,25)";
+        controlText.style.fontFamily = "Roboto,Arial,sans-serif";
+        controlText.style.fontSize = "16px";
+        controlText.style.lineHeight = "38px";
+        controlText.style.paddingLeft = "5px";
+        controlText.style.paddingRight = "5px";
+        controlText.innerHTML = "Пријави Отпад";
+        controlUI.appendChild(controlText);
+        // Setup the click event listeners: simply set the map to Chicago.
+        controlUI.addEventListener("click", () => {
+            showPosition(longitude, latitude);
+        });
+    }
+    function showPosition() {
+        if(logged_in){
+            $("#garbage_form_modal").modal('show');
+            $("#garbage_location_attributes_latitude").val(latitude);
+            $("#garbage_location_attributes_longitude").val(longitude);
+        }
+        else {
+            $("#login_form_modal").modal('show');
+        }
+    }
+</script>
+<%= javascript_include_tag "//maps.google.com/maps/api/js?key=#{ENV.fetch('GOOGLE_MAPS_API_KEY')}&callback=initMap&region=MK" %>

@@ -1,0 +1,54 @@
+<button type="button" class="btn btn-success" data-toggle="modal" data-target="#login_form_modal">
+  Најави се
+</button>
+
+
+<div class="modal fade" id="login_form_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <form class="text-center border border-light p-5" id="login_form" action="<%= user_session_path %>" method="post"
+            onsubmit="event.preventDefault(); request_login();">
+
+        <p class="h4 mb-5">Најава</p>
+        <div class="alert alert-danger" id="error_login" style="display: none;">Невалиден Емаил или Лозинка</div>
+        <!-- Email -->
+        <input type="email" id="user_email" class="form-control mb-4" placeholder="Емаил Адреса" name="user[email]">
+
+        <!-- Password -->
+        <input type="password" id="user_password" class="form-control mb-4" placeholder="Лозинка" name="user[password]">
+
+        <!-- Sign in button -->
+        <button class="btn btn-success btn-block my-4 mt-5" type="submit">Најави се</button>
+
+        <!-- Social login -->
+
+        <%= link_to user_facebook_omniauth_authorize_path do %>
+          <button class="btn btn-primary btn-block my-4">
+            <i class="fab fa-facebook-f white-text"></i>&nbsp&nbsp
+            <span class="text-white">Најава со Facebook</span>
+          </button>
+        <% end %>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function request_login() {
+      var form = $("#login_form");
+      $.ajax({
+          url: form.attr('action'),
+          method: 'POST',
+          data: form.serialize(),
+          succes: function () {
+              location.reload(true);
+          },
+          error: function () {
+              $('#error_login').css('display', 'block');
+          }
+      })
+  }
+  $("#login_form_modal").on('show.bs.modal', function () {
+      $("#error_login").css('display', 'none');
+  })
+</script>

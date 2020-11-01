@@ -1,0 +1,27 @@
+<div class="container h-100">
+  <div class="row h-100 justify-content-center align-items-center">
+    <form class="text-center border border-light p-5 mt-5 w-50" action="<%= user_session_path %>" method="post">
+
+      <p class="h4 mb-5">Најава</p>
+
+
+      <!-- Email -->
+      <input type="email" id="user_email" class="form-control mb-4" placeholder="Емаил Адреса" name="user[email]">
+
+      <!-- Password -->
+      <input type="password" id="user_password" class="form-control mb-4" placeholder="Лозинка" name="user[password]">
+
+      <!-- Sign in button -->
+      <button class="btn btn-success btn-block my-4 mt-5" type="submit">Најави се</button>
+
+      <!-- Social login -->
+
+      <%= link_to user_facebook_omniauth_authorize_path do %>
+        <button class="btn btn-primary  my-4">
+          <i class="fab fa-facebook-f white-text"></i>&nbsp&nbsp
+          <span class="text-white">Најава со Facebook</span>
+        </button>
+      <% end %>
+    </form>
+  </div>
+</div>

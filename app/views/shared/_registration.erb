@@ -1,0 +1,56 @@
+<button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#registration_form_modal">
+  Регистрирај се
+</button>
+
+
+<div class="modal fade" id="registration_form_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <form class="text-center border border-light p-5" id='registration_form' action="<%= user_registration_path %>" method="post"
+            onsubmit="event.preventDefault(); request_registration();">
+
+        <p class="h4 mb-5">Регистрација</p>
+        <div class="alert alert-danger" id="error_registration" style="display: none;"></div>
+        <!-- Email -->
+        <input type="email" id="user_registration_email" class="form-control mb-4" placeholder="Емаил Адреса" name="user[email]">
+
+        <!-- Password -->
+        <input type="password" id="user_registration_password" class="form-control mb-4" placeholder="Лозинка" name="user[password]">
+
+        <!-- Password Confirmation -->
+        <input type="password" id="user_registration_password_confirmation" class="form-control mb-4" placeholder="Потврди Лозинка" name="user[password_confirmation]">
+
+        <!-- Name -->
+        <input type="name" id="user_registration_name" class="form-control mb-4" placeholder="Име и Презиме" name="user[name]">
+
+        <!-- Sign in button -->
+        <button class="btn btn-primary btn-block my-4 mt-5" type="submit">Регистрирај се</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+    function request_registration() {
+        var form = $("#registration_form");
+        $('#error_registration').text('');
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            success: function () {
+                location.reload(true);
+            },
+            error: function (response) {
+                let error_array = response.responseJSON['message'];
+                for(var i = 0; i < error_array.length; i++){
+                    $('#error_registration').append(error_array[i][0] + '<br>');
+                }
+                $('#error_registration').css('display', 'block');
+            }
+        })
+    }
+    $("#registration_form_modal").on('show.bs.modal', function () {
+        $("#error_registration").css('display', 'none');
+    })
+</script>
