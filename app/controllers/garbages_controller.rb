@@ -72,15 +72,20 @@ class GarbagesController < ApplicationController
     end
 
   def index_filter
-    @garbages = Garbage.none
-    if current_user.present?
-      user_id = current_user.id
-      @garbages = @garbages.or(Garbage.filter_reported_by_me(user_id)) if params[:reported_by_me]
-      @garbages = @garbages.or(Garbage.filter_cleaned_by_me(user_id)) if params[:cleaned_by_me]
-      @garbages = @garbages.or(Garbage.filter_reviewed_by_me(user_id)) if params[:reviewed_by_me]
+    if params.to_unsafe_h[:filters]
+      @garbages = Garbage.none
+      filters = params.to_unsafe_h[:filters].reduce({}, :merge)
+      if current_user.present?
+        user_id = current_user.id
+        @garbages = @garbages.or(Garbage.filter_reported_by_me(user_id)) if filters['reported_by_me']
+        @garbages = @garbages.or(Garbage.filter_cleaned_by_me(user_id)) if filters['cleaned_by_me']
+        @garbages = @garbages.or(Garbage.filter_reviewed_by_me(user_id)) if filters['reviewed_by_me']
+      end
+      @garbages = @garbages.or(Garbage.filter_for_cleaning) if filters['for_cleaning']
+      @garbages = @garbages.or(Garbage.filter_for_reviewing) if filters['for_reviewing']
+      @garbages = @garbages.or(Garbage.filter_finished) if filters['filter_finished']
+    else
+      @garbages = Garbage.all
     end
-    @garbages = @garbages.or(Garbage.filter_for_cleaning) if params[:for_cleaning]
-    @garbages = @garbages.or(Garbage.filter_for_reviewing) if params[:for_reviewing]
-    @garbages = @garbages.or(Garbage.filter_finished) if params[:filter_finished]
   end
 end

@@ -81,7 +81,7 @@
 
         $("#filters input[type=checkbox]").each(function () {
             if(this.checked){
-                filters += $(this).attr('id') + '=true&';
+                filters += 'filters[]' + $(this).attr('id') + '=true&';
             }
         });
         filters = filters.slice(0, -1)
