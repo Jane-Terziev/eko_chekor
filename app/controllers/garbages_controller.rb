@@ -1,9 +1,9 @@
 class GarbagesController < ApplicationController
   before_action :set_garbage, only: [:show, :edit, :update_cleaned, :update_reviewed]
+  before_action :index_filter, only: [:index]
 
   # GET /garbages
   def index
-    @garbages = Garbage.all
     respond_to do |format|
       format.html
       format.json { render json: @garbages.as_json }
@@ -70,4 +70,17 @@ class GarbagesController < ApplicationController
     def garbage_params
       params.require(:garbage).permit(:description, :image, :status, :points, location_attributes: [:longitude, :latitude])
     end
+
+  def index_filter
+    @garbages = Garbage.all
+    if current_user.present?
+      user_id = current_user.id
+      @garbages = Garbage.filter_reported_by_me(user_id) if params[:reported_by_me]
+      @garbages = Garbage.filter_cleaned_by_me(user_id) if params[:cleaned_by_me]
+      @garbages = Garbage.filter_reviewed_by_me(user_id) if params[:reviewed_by_me]
+    end
+    @garbages = Garbage.filter_for_cleaning if params[:for_cleaning]
+    @garbages = Garbage.filter_for_reviewing if params[:for_reviewing]
+    @garbages = Garbage.filter_finished if params[:filter_finished]
+  end
 end

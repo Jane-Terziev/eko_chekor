@@ -15,6 +15,13 @@ class Garbage < ApplicationRecord
   validates :user, presence: true
   validates :location, presence: true
 
+  scope :filter_reported_by_me, -> (user_id) { where user_id: user_id }
+  scope :filter_cleaned_by_me, -> (user_id) { where cleaner_id: user_id }
+  scope :filter_reviewed_by_me, -> (user_id) { where reviewer_id: user_id }
+  scope :filter_for_cleaning, -> { where cleaner_id: nil }
+  scope :filter_for_reviewing, -> { where reviewer_id: nil }
+  scope :filter_finished, -> { where.not cleaner_id: nil, reviewer_id: nil }
+
   def as_json(options = {})
     {
         id: id,
