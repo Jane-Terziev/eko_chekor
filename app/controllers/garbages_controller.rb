@@ -29,8 +29,8 @@ class GarbagesController < ApplicationController
   def create
     @garbage = Garbage.new(garbage_params.merge(user_id: current_user.id, status: Garbage::STATUSES[:not_cleaned]))
     if @garbage.save
-      puts @garbage.image.url
-      response = JSON.parse(web_client.post(ENV['IMAGE_PROCESSOR_HOST'], :body => {image_url: @garbage.image.url}))
+      body = { image_url: @garbage.image.url }.to_json
+      response = JSON.parse(web_client.post(ENV['IMAGE_PROCESSOR_HOST'], :body => body).body)
       @garbage.points = response["result"]
       @garbage.save
       redirect_back(fallback_location: map_path)
