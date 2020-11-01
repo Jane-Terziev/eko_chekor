@@ -9,24 +9,32 @@
           <strong>Пребарувај со филтри</strong>
         </div>
       </div>
-      <div class="card-body">
+      <div class="card-body" id="filters">
         <% if current_user %>
           <div class="custom-control custom-checkbox mb-4">
-            <input type="checkbox" class="custom-control-input" id="by_me">
-            <label class="custom-control-label" for="by_me">Отпад пријавен од мене</label>
+            <input type="checkbox" class="custom-control-input" id="reported_by_me">
+            <label class="custom-control-label" for="reported_by_me">Отпад пријавен од мене</label>
+          </div>
+          <div class="custom-control custom-checkbox mb-4">
+            <input type="checkbox" class="custom-control-input" id="cleaned_by_me">
+            <label class="custom-control-label" for="cleaned_by_me">Отпад исчистен од мене</label>
+          </div>
+          <div class="custom-control custom-checkbox mb-4">
+            <input type="checkbox" class="custom-control-input" id="reviewed_by_me">
+            <label class="custom-control-label" for="reviewed_by_me">Отпад проверен од мене</label>
           </div>
         <% end %>
         <div class="custom-control custom-checkbox mb-4">
-          <input type="checkbox" class="custom-control-input" id="not_cleaned">
-          <label class="custom-control-label" for="not_cleaned">Oтпад за чистење</label>
+          <input type="checkbox" class="custom-control-input" id="for_cleaning">
+          <label class="custom-control-label" for="for_cleaning">Oтпад за чистење</label>
         </div>
         <div class="custom-control custom-checkbox mb-4">
-          <input type="checkbox" class="custom-control-input" id="revision">
-          <label class="custom-control-label" for="revision">Отпад за проверка</label>
+          <input type="checkbox" class="custom-control-input" id="for_reviewing">
+          <label class="custom-control-label" for="for_reviewing">Отпад за проверка</label>
         </div>
         <div class="custom-control custom-checkbox">
-          <input type="checkbox" class="custom-control-input" id="cleaned">
-          <label class="custom-control-label" for="cleaned">Исчистен отпад</label>
+          <input type="checkbox" class="custom-control-input" id="filter_finished">
+          <label class="custom-control-label" for="filter_finished">Исчистен отпад</label>
         </div>
       </div>
 
@@ -48,19 +56,11 @@
 <script>
     let longitude;
     let latitude;
-    function set_position(position) {
-        longitude = position.coords.longitude;
-        latitude = position.coords.latitude;
-    }
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(set_position, function () {
-            alert('Please allow location to continue');
-        });
-    }
     let map, infoWindow;
     let country_location = { lng: 21.7453, lat: 41.6086 };
     let garbages;
     let markers = [];
+    let filter_url = '<%= garbages_path %>';
     var icons = {
         "not_cleaned": {
             "small": '<%= image_path('pin_red_small.svg')  %>',
@@ -78,6 +78,30 @@
             "large": '<%= image_path('pin_green_large.svg')  %>'
         },
     }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(set_position, function () {
+            alert('Please allow location to continue');
+        });
+    }
+
+    $("#filters input[type=checkbox]").change(function () {
+        let filters = filter_url + '?';
+
+        $("#filters input[type=checkbox]").each(function () {
+            if(this.checked){
+                filters += $(this).attr('id') + '=true&';
+            }
+        });
+        filters = filters.slice(0, -1)
+        filter_garbages(map, filters);
+    });
+
+    function set_position(position) {
+        longitude = position.coords.longitude;
+        latitude = position.coords.latitude;
+    }
+
     function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
             center: country_location,
@@ -89,41 +113,8 @@
         const centerControlDiv = document.createElement("div");
         ReportGarbageControl(centerControlDiv, map);
         map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(centerControlDiv);
-        $.ajax({
-            url: '<%= garbages_path %>',
-            method: 'GET',
-            async: false,
-            contentType: "application/json",
-            dataType: "json",
-            success: function (response) {
-                garbages = response;
-                var marker_image;
-                for(var i = 0; i < garbages.length; i++){
-                    marker_image = {
-                        url: icons[garbages[i]['status']]['small'],
-                        size: new google.maps.Size(85, 85),
-                        origin: new google.maps.Point(0, 0),
-                        anchor: new google.maps.Point(0, 32),
-                    };
-                    var marker = new google.maps.Marker({
-                        position: {lng: parseFloat(garbages[i]['location']['longitude']), lat: parseFloat(garbages[i]['location']['latitude'])},
-                        map,
-                        icon: marker_image
-                    });
-                    markers.push(marker);
-                    google.maps.event.addListener(marker, 'click', (function (marker, i) {
-                        return function(){
-                        var infoWindow = new google.maps.InfoWindow({ maxWidth: 200, maxHeight: 200 });
-                        let markerContent = '';
-                        let single_garbage = garbages[i];
-                        markerContent += generateInfoContent(single_garbage);
-                        infoWindow.setContent(markerContent);
-                        infoWindow.open(marker, this);
-                        }
-                    })(marker, i));
-                }
-            }
-        });
+
+        filter_garbages(map, filter_url);
 
         google.maps.event.addListener(map, 'zoom_changed', function() {
             var marker_size_type;
@@ -146,6 +137,50 @@
                 markers[i].setIcon(icons[garbages[i]['status']][marker_size_type]);
                 markers[i].size = new google.maps.Size(marker_size, marker_size);
                 new google.maps.Marker(markers[i]);
+            }
+        });
+    }
+
+    function filter_garbages(map, url) {
+        $.ajax({
+            url: url,
+            method: 'GET',
+            async: false,
+            contentType: "application/json",
+            dataType: "json",
+            success: function (response) {
+                garbages = response;
+                if(markers.length){
+                    for(var i = 0; i < markers.length; i++) {
+                        markers[i].setMap(null);
+                    }
+                }
+                markers = [];
+                var marker_image;
+                for(var i = 0; i < garbages.length; i++){
+                    marker_image = {
+                        url: icons[garbages[i]['status']]['small'],
+                        size: new google.maps.Size(85, 85),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(0, 32),
+                    };
+                    var marker = new google.maps.Marker({
+                        position: {lng: parseFloat(garbages[i]['location']['longitude']), lat: parseFloat(garbages[i]['location']['latitude'])},
+                        map,
+                        icon: marker_image
+                    });
+                    markers.push(marker);
+                    google.maps.event.addListener(marker, 'click', (function (marker, i) {
+                        return function(){
+                            var infoWindow = new google.maps.InfoWindow({ maxWidth: 200, maxHeight: 200 });
+                            let markerContent = '';
+                            let single_garbage = garbages[i];
+                            markerContent += generateInfoContent(single_garbage);
+                            infoWindow.setContent(markerContent);
+                            infoWindow.open(marker, this);
+                        }
+                    })(marker, i));
+                }
             }
         });
     }
@@ -188,7 +223,6 @@
     }
 
     function open_clean_modal(id) {
-        console.log(id);
         $("#garbage_clean_form").attr('action', "/garbages/" + id + "/cleaned");
         $("#garbage_clean_modal").modal('show');
     }
