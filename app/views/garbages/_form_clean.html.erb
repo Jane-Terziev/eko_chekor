@@ -1,0 +1,30 @@
+<div class="modal fade" id="garbage_clean_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title  text-center">
+            Исчисти
+          </div>
+        </div>
+        <div class="card-body">
+          <form id="garbage_clean_form" enctype="multipart/form-data" accept-charset="UTF-8" method="post">
+            <%= hidden_field_tag :authenticity_token, form_authenticity_token -%>
+
+            <div>
+              <label for="garbage_image">Прикачи Слика</label><br>
+              <input class="form-control mb-4" id="garbage_clean_image" type="file" name="garbage[image]">
+            </div>
+
+            <div class="text-center">
+              <span class="waves-input-wrapper waves-effect waves-light"><input type="submit" name="commit" value="Потврди" class="btn btn-success" data-disable-with="Потврди"></span>
+              <button class="btn btn-danger waves-effect waves-light" data-dismiss="modal">
+                Откажи
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

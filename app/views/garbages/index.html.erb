@@ -41,7 +41,9 @@
     </div>
   </div>
 </div>
+
 <%= render 'form_modal', garbage: @garbage %>
+<%= render 'form_clean', garbage: @garbage %>
 
 <script>
     let longitude;
@@ -150,19 +152,45 @@
 
     function generateInfoContent(single_garbage) {
         let content = '<div class="card">';
-        if(single_garbage['image']['url'] != null){
-            content += '<img class="card-img-top img-fluid" src="' + single_garbage['image']['url'] + '"/>';
-        }
-        content += '<div class="card-body">'
-        if(single_garbage['description'] != null) {
-            content +=  '<p class="card-text">' + 'Опис: ' + single_garbage['description'] + '</p>'
-        }
-        content += '<p class="card-text">' + 'Пријавено од: ' + single_garbage['user']['name'] + '</p>';
+        let id = single_garbage['id'];
+
         if(single_garbage['status'] == 'not_cleaned'){
-            content += '<a href="#" class="btn btn-success btn-block">Исчисти</a>'
+            if(single_garbage['image']['url'] != null){
+                content += '<img class="card-img-top img-fluid" src="' + single_garbage['image']['url'] + '"/>';
+            }
+            content += '<div class="card-body">'
+            if(single_garbage['description'] != null) {
+                content +=  '<p class="card-text">' + 'Опис: ' + single_garbage['description'] + '</p>'
+            }
+            content += '<p class="card-text"><strong>Пријавено од: </strong>' + single_garbage['user']['name'] + '</p>';
+            content += '<button class="btn btn-success btn-block" onclick="open_clean_modal(' + id + ')">Исчисти</button>'
+        }
+        if(single_garbage['status'] == 'cleaned'){
+            if(single_garbage['image_cleaned']['url'] != null){
+                content += '<img class="card-img-top img-fluid" src="' + single_garbage['image_cleaned']['url'] + '"/>';
+            }
+            content += '<div class="card-body">'
+            content += '<p class="card-text"><strong>Пријавено од: </strong>' + single_garbage['user']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Исчистено од:</strong> ' + single_garbage['cleaner']['name'] + '</p>';
+            content += '<a href="/garbages/' + id + '/reviewed" class="btn btn-success btn-block">Потврди</a>'
+        }
+        if(single_garbage['status'] == 'reviewed') {
+            if(single_garbage['image_cleaned']['url'] != null){
+                content += '<img class="card-img-top img-fluid" src="' + single_garbage['image_cleaned']['url'] + '"/>';
+            }
+            content += '<div class="card-body">'
+            content += '<p class="card-text"><strong>Пријавено од: </strong>' + single_garbage['user']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Исчистено од:</strong> ' + single_garbage['cleaner']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Проверено од:</strong> ' + single_garbage['reviewer']['name'] + '</p>';
         }
         content += '</div></div>'
         return content;
+    }
+
+    function open_clean_modal(id) {
+        console.log(id);
+        $("#garbage_clean_form").attr('action', "/garbages/" + id + "/cleaned");
+        $("#garbage_clean_modal").modal('show');
     }
 
     function ReportGarbageControl(controlDiv, map) {

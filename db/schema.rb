@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_31_202824) do
+ActiveRecord::Schema.define(version: 2020_11_01_003106) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,9 @@ ActiveRecord::Schema.define(version: 2020_10_31_202824) do
     t.string "image"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "cleaner_id"
+    t.integer "reviewer_id"
+    t.string "image_cleaned"
     t.index ["user_id"], name: "index_garbages_on_user_id"
   end
 
@@ -53,4 +56,6 @@ ActiveRecord::Schema.define(version: 2020_10_31_202824) do
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
   end
 
+  add_foreign_key "garbages", "users", column: "cleaner_id"
+  add_foreign_key "garbages", "users", column: "reviewer_id"
 end
