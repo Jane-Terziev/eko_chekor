@@ -75,12 +75,12 @@ class GarbagesController < ApplicationController
     @garbages = Garbage.all
     if current_user.present?
       user_id = current_user.id
-      @garbages = Garbage.filter_reported_by_me(user_id) if params[:reported_by_me]
-      @garbages = Garbage.filter_cleaned_by_me(user_id) if params[:cleaned_by_me]
-      @garbages = Garbage.filter_reviewed_by_me(user_id) if params[:reviewed_by_me]
+      @garbages = @garbages.or(Garbage.filter_reported_by_me(user_id)) if params[:reported_by_me]
+      @garbages = @garbages.or(Garbage.filter_cleaned_by_me(user_id)) if params[:cleaned_by_me]
+      @garbages = @garbages.or(Garbage.filter_reviewed_by_me(user_id)) if params[:reviewed_by_me]
     end
-    @garbages = Garbage.filter_for_cleaning if params[:for_cleaning]
-    @garbages = Garbage.filter_for_reviewing if params[:for_reviewing]
-    @garbages = Garbage.filter_finished if params[:filter_finished]
+    @garbages = @garbages.or(Garbage.filter_for_cleaning) if params[:for_cleaning]
+    @garbages = @garbages.or(Garbage.filter_for_reviewing) if params[:for_reviewing]
+    @garbages = @garbages.or(Garbage.filter_finished) if params[:filter_finished]
   end
 end
