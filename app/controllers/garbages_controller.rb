@@ -72,7 +72,7 @@ class GarbagesController < ApplicationController
     end
 
   def index_filter
-    @garbages = Garbage.all
+    @garbages = Garbage.none
     if current_user.present?
       user_id = current_user.id
       @garbages = @garbages.or(Garbage.filter_reported_by_me(user_id)) if params[:reported_by_me]
