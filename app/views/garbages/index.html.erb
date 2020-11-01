@@ -189,6 +189,7 @@
                 content +=  '<p class="card-text">' + 'Опис: ' + single_garbage['description'] + '</p>'
             }
             content += '<p class="card-text"><strong>Пријавено од: </strong>' + single_garbage['user']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Поени: </strong>' + single_garbage['points'] + '</p>';
             content += '<button class="btn btn-success btn-block" onclick="open_clean_modal(' + id + ')">Исчисти</button>'
         }
         if(single_garbage['status'] == 'cleaned'){
@@ -198,6 +199,7 @@
             content += '<div class="card-body">'
             content += '<p class="card-text"><strong>Пријавено од: </strong>' + single_garbage['user']['name'] + '</p>';
             content += '<p class="card-text"><strong>Исчистено од:</strong> ' + single_garbage['cleaner']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Поени: </strong>' + single_garbage['points'] + '</p>';
             content += '<a href="/garbages/' + id + '/reviewed" class="btn btn-success btn-block">Потврди</a>'
         }
         if(single_garbage['status'] == 'reviewed') {
@@ -208,6 +210,7 @@
             content += '<p class="card-text"><strong>Пријавено од: </strong>' + single_garbage['user']['name'] + '</p>';
             content += '<p class="card-text"><strong>Исчистено од:</strong> ' + single_garbage['cleaner']['name'] + '</p>';
             content += '<p class="card-text"><strong>Проверено од:</strong> ' + single_garbage['reviewer']['name'] + '</p>';
+            content += '<p class="card-text"><strong>Поени: </strong>' + single_garbage['points'] + '</p>';
         }
         content += '</div></div>'
         return content;

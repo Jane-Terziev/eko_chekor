@@ -29,6 +29,7 @@ class Garbage < ApplicationRecord
         image: image,
         image_cleaned: image_cleaned,
         status: status,
+        points: points,
         location: location,
         user: user,
         cleaner: cleaner,

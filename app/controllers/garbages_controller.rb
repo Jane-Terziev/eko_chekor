@@ -1,7 +1,9 @@
 class GarbagesController < ApplicationController
   before_action :set_garbage, only: [:show, :edit, :update_cleaned, :update_reviewed]
   before_action :index_filter, only: [:index]
-
+  include EkoChekor::Import[
+               web_client: 'web_client'
+           ]
   # GET /garbages
   def index
     respond_to do |format|
@@ -26,8 +28,11 @@ class GarbagesController < ApplicationController
   # POST /garbages
   def create
     @garbage = Garbage.new(garbage_params.merge(user_id: current_user.id, status: Garbage::STATUSES[:not_cleaned]))
-
     if @garbage.save
+      puts @garbage.image.url
+      response = JSON.parse(web_client.post(ENV['IMAGE_PROCESSOR_HOST'], :body => {image_url: @garbage.image.url}))
+      @garbage.points = response["result"]
+      @garbage.save
       redirect_back(fallback_location: map_path)
     else
       render :new
