@@ -1,5 +1,5 @@
 class GarbagesController < ApplicationController
-  before_action :set_garbage, only: [:show, :edit, :update, :destroy]
+  before_action :set_garbage, only: [:show, :edit, :update_cleaned, :update_reviewed]
 
   # GET /garbages
   def index
@@ -34,13 +34,19 @@ class GarbagesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /garbages/1
-  def update
-    if @garbage.update(garbage_params)
-      redirect_to @garbage
-    else
-      render :edit
-    end
+  def update_cleaned
+    @garbage.status = 1
+    @garbage.cleaner = current_user
+    @garbage.image_cleaned = params[:garbage][:image]
+    @garbage.save!
+    redirect_to :map
+  end
+
+  def update_reviewed
+    @garbage.status = 2
+    @garbage.reviewer = current_user
+    @garbage.save!
+    redirect_to :map
   end
 
   # DELETE /garbages/1
